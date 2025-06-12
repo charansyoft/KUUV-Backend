@@ -145,7 +145,7 @@ app.post("/GroupToPersonalChatID", verifyToken, groupToPersonalChatID)
 app.post("/LeaveGroup", verifyToken, leaveGroupValidation, leaveGroup )
 
 // CHATS Routes
-app.post("/chats", verifyToken, validateRequest, createChat ); //prettier-ignore
+// app.post("/chats", verifyToken, validateRequest, createChat ); //prettier-ignore
 app.get("/chats", verifyToken, getChatsValidationSchema, validateRequest, getChats); //prettier-ignore
 app.get("/chats/:chatId", verifyToken, getChatByIdValidationSchema(), validateRequest, getChatById); //prettier-ignore
 app.post("/chats/:chatId/messages", verifyToken, sendMessageValidationSchema, validateRequest, sendMessage); //prettier-ignore
