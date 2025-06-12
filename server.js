@@ -60,7 +60,6 @@ import GetGroupsByPhone from "./routes/groups/GetGroupsByPhone.js";
 import { getGroupDetailsByGroupIdValidationSchema } from "./routes/groups/getGroupDetailsByGroupIdValidationSchema.js";
 import getGroupDetails from "./routes/groups/getGroupDetails.js";
 import { createChatValidationSchema } from "./routes/chats/CreateChatValidationSchema.js";
-import { createChat } from "./routes/chats/createChat.js";
 import { getChatsValidationSchema } from "./routes/chats/getChatsValidationSchema.js";
 import { getChats } from "./routes/chats/getChats.js";
 import { sendMessageValidationSchema } from "./routes/chats/sendMessageValidationSchema.js";
@@ -85,6 +84,7 @@ import groupToPersonalChatID from "./routes/groups/GroupToPersonalChatId.js";
 import { leaveGroupValidation } from "./routes/groups/leaveGroupValidation.js";
 import { leaveGroup } from "./routes/groups/leaveGroup.js";
 import { Notifications } from "./routes/Notifications/Notification.js";
+import { createChat } from "./routes/chats/createChat.js";
 
 const app = express();
 const PORT = 3000;
@@ -145,7 +145,7 @@ app.post("/GroupToPersonalChatID", verifyToken, groupToPersonalChatID)
 app.post("/LeaveGroup", verifyToken, leaveGroupValidation, leaveGroup )
 
 // CHATS Routes
-app.post("/chats", verifyToken, validateRequest, createChat); //prettier-ignore
+app.post("/chats", verifyToken, validateRequest, createChat ); //prettier-ignore
 app.get("/chats", verifyToken, getChatsValidationSchema, validateRequest, getChats); //prettier-ignore
 app.get("/chats/:chatId", verifyToken, getChatByIdValidationSchema(), validateRequest, getChatById); //prettier-ignore
 app.post("/chats/:chatId/messages", verifyToken, sendMessageValidationSchema, validateRequest, sendMessage); //prettier-ignore
