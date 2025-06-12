@@ -104,7 +104,7 @@ app.get('/misc/countries', getCountries); // prettier-ignore
 app.post('/misc/validateotp', validateOtpValidationSchema, validateOtp); // prettier-ignore
 
 // Auth Routes
-app.post("/auth/login", verifyToken, loginValidationSchema, validateRequest, login)
+app.post("/auth/login", loginValidationSchema, validateRequest, login)
 app.post('/auth/verify', verifyOtpValidationSchema, validateRequest, verifyOtp); //prettier-ignore
 app.post('/auth/forgotpassword', forgotPasswordValidationSchema, forgotPassword); // prettier-ignore
 app.post('/auth/resetpassword', resetPasswordValidationSchema, resetPassword); // prettier-ignore
