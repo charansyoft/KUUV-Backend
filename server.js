@@ -84,7 +84,9 @@ import groupToPersonalChatID from "./routes/groups/GroupToPersonalChatId.js";
 import { leaveGroupValidation } from "./routes/groups/leaveGroupValidation.js";
 import { leaveGroup } from "./routes/groups/leaveGroup.js";
 import { Notifications } from "./routes/Notifications/Notification.js";
+import { loginValidationSchema } from "./routes/auth/loginValidationSchema.js";
 // import { createChat } from "./routes/chats/createChat.js";
+import login from "./routes/auth/login.js"
 
 const app = express();
 const PORT = 3000;
@@ -102,10 +104,7 @@ app.get('/misc/countries', getCountries); // prettier-ignore
 app.post('/misc/validateotp', validateOtpValidationSchema, validateOtp); // prettier-ignore
 
 // Auth Routes
-app.post('/auth/login', (req, res) => {
-  console.log("✅ Request Received:", req.body);
-  res.json({ message: "Login request hit the backend!", data: req.body });
-});
+app.post("/auth/login", verifyToken, loginValidationSchema, validateRequest, login)
 app.post('/auth/verify', verifyOtpValidationSchema, validateRequest, verifyOtp); //prettier-ignore
 app.post('/auth/forgotpassword', forgotPasswordValidationSchema, forgotPassword); // prettier-ignore
 app.post('/auth/resetpassword', resetPasswordValidationSchema, resetPassword); // prettier-ignore
