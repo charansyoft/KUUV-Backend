@@ -102,7 +102,10 @@ app.get('/misc/countries', getCountries); // prettier-ignore
 app.post('/misc/validateotp', validateOtpValidationSchema, validateOtp); // prettier-ignore
 
 // Auth Routes
-app.post('/auth/login', loginValidationSchema, validateRequest, login); //prettier-ignore
+app.post('/auth/login', (req, res) => {
+  console.log("✅ Request Received:", req.body);
+  res.json({ message: "Login request hit the backend!", data: req.body });
+});
 app.post('/auth/verify', verifyOtpValidationSchema, validateRequest, verifyOtp); //prettier-ignore
 app.post('/auth/forgotpassword', forgotPasswordValidationSchema, forgotPassword); // prettier-ignore
 app.post('/auth/resetpassword', resetPasswordValidationSchema, resetPassword); // prettier-ignore
@@ -151,6 +154,10 @@ app.patch("/chats/:chatId/MessageSeen", verifyToken, MessageSeenValidationSchema
 
 // Notification & Shouts
 app.get("/notifications", verifyToken, Notifications);
+app.get('/', (req, res) => {
+  res.send('Server is worksadasdasding ✅');
+  console.log("CALL FROM FRONT-END !!!")
+});
 
 
 const Server = http.createServer(app);
