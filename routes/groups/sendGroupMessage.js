@@ -1,75 +1,84 @@
 import { matchedData } from "express-validator";
 import { internalServerResponse } from "../../responses/serverErrorResponses.js";
 import { response200 } from "../../responses/successResponses.js";
-import { io } from "../../socket/socket.js";
+import { io, connectedUsers } from "../../socket/socket.js";
 import groupMessageModel from "../../models/GroupMessagesModel.js";
+import categoryModel from "../../models/categoryModel.js";
 
 import fs from "fs/promises";
 import path from "path";
 import mime from "mime-types";
 
-// Helper function to convert image path to base64 data URI
+// Helper: Convert image path to base64 data URI
 async function convertImageToBase64(imagePath) {
   if (!imagePath) return null;
 
   try {
-    // Normalize path (replace backslash with slash)
     const normalizedPath = imagePath.replace(/\\/g, "/");
-
-    // Resolve full absolute path to uploads folder
-    // Assuming 'uploads' folder is in your project root
     const fullPath = normalizedPath.startsWith("uploads/")
       ? path.resolve(normalizedPath)
       : path.resolve("uploads", normalizedPath);
 
-    // Read image file as buffer
     const imgBuffer = await fs.readFile(fullPath);
-
-    // Get MIME type (fallback to 'image/jpeg' if not detected)
     const contentType = mime.lookup(fullPath) || "image/jpeg";
-
-    // Convert buffer to base64 string
     const base64Data = imgBuffer.toString("base64");
 
-    // Return full data URI string
     return `data:${contentType};base64,${base64Data}`;
   } catch (error) {
     console.error("Failed to convert image to base64:", error);
-    return null; // Return null on error so it doesn't break the response
+    return null;
   }
 }
 
 export default async function sendGroupMessages(req, res) {
-    console.log("SEND AND EMIT MSGS FILE IS STARTED TO RUN")
+  console.log("📨 SEND AND EMIT MSGS FILE IS STARTED TO RUN");
 
   try {
     const requestData = matchedData(req);
     const groupId = req.params.groupId;
     const { message, type } = req.body;
-    const user = req?.user;
-    console.log(`groupId: ${groupId}, message: ${message}, type: ${type}, user: ${user} ----`)
-    if (type !== "msg") {
-      return res.status(400).json({ message: "Currently only 'msg' type is supported" });
-    }
+    const user = req.user;
 
-    // Create the message document
-    const newMessage = await groupMessageModel.create({
-      group: groupId,
-      type,
-      Message: message,
-      createdBy: user._id,
-      updatedBy: user._id,
-      receivedBy: [],
-      readBy: [],
-    });
+if (!["msg", "post"].includes(type)) {
+  return res.status(400).json({ message: "Only 'msg' and 'post' types are supported" });
+}
 
-    // Populate createdBy user details
-    await newMessage.populate({
-      path: "createdBy",
-      select: "name phone profilePic",
-    });
+// 1. Get group with joined user phones
+const group = await categoryModel
+  .findById(groupId)
+  .populate("joinedUsers", "_id phone")
+  .lean();
 
-    // Prepare response message object
+if (!group) {
+  console.log("❌ Group not found");
+  return res.status(404).json({ message: "Group not found" });
+}
+
+// 2. Prepare receivedBy (phones of online users except sender)
+const senderId = user._id.toString();
+const senderPhone = group.joinedUsers.find(u => u._id.toString() === senderId)?.phone;
+
+const receivedBy = group.joinedUsers
+  .filter(u => u.phone !== senderPhone && connectedUsers.has(u.phone))
+  .map(u => u.phone);
+
+console.log("📱 Online Users Receiving:", receivedBy);
+
+// 3. Create message/post
+const newMessage = await groupMessageModel.create({
+  group: groupId,
+  type,
+  Message: message || "", // optional fallback
+  createdBy: user._id,
+  updatedBy: user._id,
+  receivedBy,
+  readBy: [],
+});
+
+
+    // 4. Populate sender
+    await newMessage.populate({ path: "createdBy", select: "name phone profilePic" });
+
     const responseMessage = {
       _id: newMessage._id,
       group: newMessage.group,
@@ -82,21 +91,20 @@ export default async function sendGroupMessages(req, res) {
       updatedAt: newMessage.updatedAt,
     };
 
-    // Convert createdBy.profilePic from filepath to base64 data URI
     if (responseMessage.createdBy?.profilePic) {
       responseMessage.createdBy.profilePic = await convertImageToBase64(responseMessage.createdBy.profilePic);
     }
 
-    console.log("Response Message GROUP CHATTTTTT emit :", responseMessage)
-    // Emit the message to the group room via socket.io
+    // 5. Emit and return
     io.to(groupId).emit("newGroupMessage", responseMessage);
-    console.log("Message emitted")
-    // Send back the success response
+    console.log("📤 Emitted Message to:", groupId);
+
     return response200(res, {
       message: "Group message sent successfully",
       data: responseMessage,
     });
   } catch (err) {
+    console.log("❌ Error sending group message:", err);
     internalServerResponse(res, err);
   }
 }

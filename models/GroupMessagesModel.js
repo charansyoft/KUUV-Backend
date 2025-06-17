@@ -16,8 +16,8 @@ const groupMessagesSchema = new mongoose.Schema(
       type: String,
     },
     image: {
-      type: String, // or use ObjectId if referencing a File collection
-     default: ""
+      type: String,
+      default: "",
     },
     title: {
       type: String,
@@ -29,7 +29,7 @@ const groupMessagesSchema = new mongoose.Schema(
       type: Number,
     },
     period: {
-      type: String,  // <-- Added field for time period like "week", "day"
+      type: String, // like "week", "day"
     },
     expressedInterest: [
       {
@@ -37,38 +37,7 @@ const groupMessagesSchema = new mongoose.Schema(
         ref: "User",
       },
     ],
-    receivedBy: [
-      {
-        user: {
-          type: mongoose.Schema.Types.ObjectId,
-          ref: "User",
-        },
-        timestamp: Date,
-      },
-    ],
-    readBy: [
-      {
-        user: {
-          type: mongoose.Schema.Types.ObjectId,
-          ref: "User",
-        },
-        timestamp: Date,
-      },
-    ],
-    replyTo: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "GroupMessages",
-    },
-    mentionedUsers: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "User",
-      },
-    ],
-    pinned: {
-      type: Boolean,
-      default: false,
-    },
+
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
@@ -78,10 +47,18 @@ const groupMessagesSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
     },
-    deleted: {
-      type: Boolean,
-      default: false,
-    },
+
+    // ✅ NEW FIELDS BELOW
+    receivedBy: [
+      {
+        type: String, // or use ObjectId if tracking users
+      },
+    ],
+    readBy: [
+      {
+        type: String, // or use ObjectId if tracking users
+      },
+    ],
   },
   { timestamps: true }
 );

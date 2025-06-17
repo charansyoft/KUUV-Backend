@@ -5,6 +5,12 @@ const categorySchema = new mongoose.Schema(
     name: { type: String, required: true },
     location: { type: String },
     image: { type: String, required: false },
+    unreadStatus: [
+  {
+    userId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+    count: { type: Number, default: 0 }
+  }
+],
 
     joinedUsers: [
       {

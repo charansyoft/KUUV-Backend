@@ -45,7 +45,7 @@ export default async function getGroupMessages(req, res) {
 
     const messages = await groupMessageModel
       .find({ group: groupId })
-      .populate("createdBy", "name phone profilePic")
+      // .populate("createdBy", "name phone profilePic")
       .sort({ createdAt: 1 })
       .exec();
 
