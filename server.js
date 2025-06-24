@@ -97,7 +97,9 @@ app.use('/uploads', express.static('uploads')); // To serve uploaded images if n
 dotenv.config();
 connect(); // MongoDB connection
 app.use(express.json());
-app.use(cors());
+app.use(cors({
+  
+}));
 
 // Misc Routes
 app.get('/misc/countries', getCountries); // prettier-ignore

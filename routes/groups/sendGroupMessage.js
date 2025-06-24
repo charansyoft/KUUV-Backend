@@ -96,7 +96,7 @@ const newMessage = await groupMessageModel.create({
     }
 
     // 5. Emit and return
-    io.to(groupId).emit("newGroupMessage", responseMessage);
+io.to(groupId).emit("NewGroupMessage", responseMessage);
     console.log("📤 Emitted Message to:", groupId);
 
     return response200(res, {

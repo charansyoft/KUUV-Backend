@@ -106,7 +106,7 @@ const postController = [
         updatedAt: savedMessage.updatedAt,
       };
 
-      io.to(groupId).emit("newGroupMessage", responseMessage);
+      io.to(groupId).emit("NewGroupMessage", responseMessage);
 
       res.json({
         message: "Post saved successfully",
